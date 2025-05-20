@@ -26,5 +26,6 @@ npm start
 ```
 npm run build
 ```
-
+问题记录
+vite项目作为子应用, base路由不能有两级路径, 否则vite-plugin-qiankun创建的文件会出现类似http://localhost:8083/subapp/subapp/sub-vue3/@vite/client的错误链接
 
