@@ -29,12 +29,20 @@ module.exports = defineConfig({
       formats: ['umd'],
       fileName: (format) => `sub-vue3.${format}.js`
     },
+    cssCodeSplit: false, // 将 CSS 提取到单独的文件
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
         globals: {
           vue: 'Vue',
           'vue-router': 'VueRouter'
+        },
+        // 添加资源文件名格式化配置
+        assetFileNames: (assetInfo: any) => {
+          if (assetInfo.name.endsWith('.css')) {
+            return 'style/[name].[hash][extname]';
+          }
+          return 'assets/[name].[hash][extname]';
         }
       },
       external: ['vue', 'vue-router']
