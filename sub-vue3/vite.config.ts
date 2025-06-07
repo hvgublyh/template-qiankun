@@ -2,15 +2,23 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import qiankun from 'vite-plugin-qiankun'
+const selectorNamespace = require('postcss-selector-namespace');
 
 // https://vitejs.dev/config/
 module.exports = defineConfig({
   plugins: [
     vue(),
-    qiankun('sub-vue3', {
+    qiankun('vite', {
       useDevMode: true,
-    })
+    }),
   ],
+  css: {
+    postcss: {
+      plugins: [
+        selectorNamespace({ namespace: '.vite-qiankun' }) // 先执行样式隔离
+      ]
+    }
+  },
   base: '/vite',
   optimizeDeps: {
     include: ['common']
@@ -25,9 +33,9 @@ module.exports = defineConfig({
     target: 'es2015',
     lib: {
       entry: resolve('./src/main.ts'),
-      name: 'sub-vue3',
+      name: 'vite',
       formats: ['umd'],
-      fileName: (format) => `sub-vue3.${format}.js`
+      fileName: (format) => `vite.${format}.js`
     },
     cssCodeSplit: false, // 将 CSS 提取到单独的文件
     rollupOptions: {

@@ -27,5 +27,10 @@ npm start
 npm run build
 ```
 问题记录
-vite项目作为子应用, base路由不能有两级路径, 否则vite-plugin-qiankun创建的文件会出现类似http://localhost:8083/subapp/subapp/sub-vue3/@vite/client的错误链接
+1. vite项目作为子应用, base路由不能有两级路径, 否则vite-plugin-qiankun创建的文件会出现类似http://localhost:8083/subapp/subapp/sub-vue3/@vite/client的错误链接
+2. vite项目作用子应用, strictStyleIsolation配置后无法加载css文件
+3. qiankun子项目, 注意清空history, 如 history.destroy(), 并且在render的时候重新实例.
+4. qiankunWindow.__POWERED_BY_QIANKUN__在第二次调用mount时被更改为undefined, 因此要在第一次时保存真实取值
+5. 通过postcss-selector-namespace实现样式隔离
+6. 
 

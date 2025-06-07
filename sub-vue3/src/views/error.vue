@@ -3,22 +3,31 @@
     <div class="error-content">
       <div class="error-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96">
-          <path fill="none" d="M0 0h24v24H0z"/>
-          <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v2h-2v-2zm0-8h2v6h-2V7z" fill="currentColor"/>
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path
+            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v2h-2v-2zm0-8h2v6h-2V7z"
+            fill="currentColor" />
         </svg>
       </div>
       <h1 class="error-title">{{ title }}</h1>
       <p class="error-message">{{ message }}</p>
-      <button class="error-button" @click="goBack">Go Back</button>
+      <el-button type="primary" @click="openDialog">打开弹框</el-button>
+
+      <el-dialog title="提示" v-model="dialogVisible">
+        <p>这是一个弹框内容</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">展示弹框</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
 
-<script setup>
-import { defineProps } from 'vue';
-import { useRouter } from 'vue-router';
+<script setup lang="ts">
+import { defineProps, ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     default: 'Error Occurred'
@@ -32,12 +41,11 @@ const props = defineProps({
     default: 500
   }
 });
-
-const router = useRouter();
-
-const goBack = () => {
-  router.back();
+const dialogVisible = ref(false);
+const openDialog = () => {
+  dialogVisible.value = true;
 };
+
 </script>
 
 <style scoped>

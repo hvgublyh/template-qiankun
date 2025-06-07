@@ -13,7 +13,11 @@ module.exports = {
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    // 添加这条规则
+    'vue/script-setup-uses-vars': 'error',
+    // 添加未定义变量的检查
+    'no-undef': 'error'
   },
   overrides: [
     {

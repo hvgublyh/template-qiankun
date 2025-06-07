@@ -12,7 +12,7 @@ cp -r ./sub-react/build/ ./dist/subapp/sub-react/
 cp -r ./sub-vue/dist/ ./dist/subapp/sub-vue/
 
 # sub-vue子应用
-cp -r ./sub-vue/dist/ ./dist/subapp/sub-vue3/
+cp -r ./sub-vue/dist/ ./dist/subapp/vite/
 
 # sub-html子应用
 cp -r ./sub-html/dist/ ./dist/subapp/sub-html/

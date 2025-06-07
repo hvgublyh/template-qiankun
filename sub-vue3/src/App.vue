@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import { ref } from "vue";
-import { useStore } from "vuex";
 
-const store = useStore();
-const user = ref(store.state.user);
+
 </script>
 
 <template>
-  <div class="App">
+  <div class="App vite-qiankun">
     <router-view/>
   </div>
 </template>

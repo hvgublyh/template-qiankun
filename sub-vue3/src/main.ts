@@ -12,14 +12,21 @@ import {
   qiankunWindow,
   type QiankunProps
 } from 'vite-plugin-qiankun/dist/helper'
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
 
-let instance: any = null
+let instance: ReturnType<typeof createApp> | null = null
+let history: ReturnType<typeof createWebHistory> | null = null
+let router = null
+const __POWERED_BY_QIANKUN__ = qiankunWindow.__POWERED_BY_QIANKUN__
 
 function render(props: any = {}) {
   const { container, routerBase } = props || {}
   // 在渲染函数中创建路由器
-  const router = createRouter({
-    history: createWebHistory(window.__POWERED_BY_QIANKUN__ ? routerBase : '/'),
+  instance = createApp(App)
+  history = createWebHistory(__POWERED_BY_QIANKUN__ ? routerBase : '/')
+  router = createRouter({
+    history,
     routes
   })
   // 添加导航守卫
@@ -36,14 +43,13 @@ function render(props: any = {}) {
       document.title = to.meta.title as string
     }
   })
+  instance.use(router)
+  instance.use(store)
+  instance.use(ElementPlus);
+  instance.mount(container ? container.querySelector('#app') : '#app')
 
-  const app = createApp(App)
-  app.use(router)
-  app.use(store)
 
-  instance = app.mount(container ? container.querySelector('#app') : '#app')
-
-  return { app, router, store }
+  return { instance, router, store }
 }
 
 
@@ -57,14 +63,21 @@ const initQianKun = () => {
   renderWithQiankun({
     mount(props) {
       console.warn('mount')
+      // 注册全局状态
+      commonStore.globalRegister(store, props)
       render(props);
     },
-    bootstrap() { 
+    bootstrap() {
       console.warn('bootstrap')
     },
     unmount() {
       console.warn('unmount')
-      instance.unmount();
+      if (instance) {
+        instance.unmount()
+      }
+      history && history.destroy() // 不卸载  router 会导致其他应用路由失败
+      router = null
+      instance = null
     },
     update: function (props: QiankunProps): void | Promise<void> {
       console.warn('update')
@@ -73,21 +86,4 @@ const initQianKun = () => {
   })
 }
 
-export async function mount(props: any) {
-  console.log('[vue3] props from main framework', props)
-
-  // 注册全局状态
-  commonStore.globalRegister(store, props)
-
-  initQianKun()
-}
-
-export async function unmount() {
-  // Vue 3 的卸载方式
-  if (instance) {
-    instance.unmount()
-    instance = null
-  }
-}
-
-qiankunWindow.__POWERED_BY_QIANKUN__ ? initQianKun() : render()
+__POWERED_BY_QIANKUN__ ? initQianKun() : render()

@@ -5,7 +5,7 @@
       <router-link to="/about">About</router-link>
     </div>
     <div>
-      <p>当前处于<code>{{ isInQiankun ? 'qiankun' : '独立运行'}}</code>环境</p>
+      <p>当前处于<code>{{ isInQiankun ? 'qiankun' : '独立运行' }}</code>环境</p>
       <p>vuex的`global module`的user state：<code> {{ JSON.stringify(user) }}</code></p>
     </div>
     <div class="btns">
@@ -14,8 +14,16 @@
         <button @click="openSubVue">独立打开sub-vue子应用</button>
       </template>
       <button @click="changeUsername">改变全局的用户名称</button>
+      <el-button type="primary" @click="openDialog">打开弹框</el-button>
+      <el-dialog title="提示" :visible.sync="dialogVisible"  :append-to-body="false">
+        <p>当前处于qiankun环境，点击按钮会改变全局的用户名称</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="dialogVisible = false">确定</el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+        </span>
+      </el-dialog>
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -30,6 +38,11 @@ export default {
     }),
     isInQiankun () {
       return window.__POWERED_BY_QIANKUN__
+    }
+  },
+  data () {
+    return {
+      dialogVisible: false
     }
   },
   methods: {
@@ -52,6 +65,9 @@ export default {
 
       // window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__ 是qiankun注入的子应用对应的地址，谨慎使用，生产环境建议将跳转地址维护在环境变量中
       window.open(window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__)
+    },
+    openDialog () {
+      this.dialogVisible = true
     }
   }
 }
@@ -79,11 +95,11 @@ export default {
   color: #42b983;
 }
 
-.btns{
+.btns {
   margin: 100px;
 }
-.btns button{
+
+.btns button {
   margin: 0 10px;
 }
-
 </style>

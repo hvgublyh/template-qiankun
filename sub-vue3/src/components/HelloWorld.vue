@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 defineProps<{ msg: string }>()
 
-const count = ref(0)
+const router = useRouter()
+const goError = () => {
+  router.push({ path: '/error' })
+}
 </script>
 
 <template>
@@ -11,7 +14,7 @@ const count = ref(0)
     <h1>{{ msg }}</h1>
 
     <div class="card">
-      <button type="button" @click="count++">count is {{ count }}</button>
+      <button type="button" @click="goError">移动到Error</button>
       <p>
         Edit
         <code>components/HelloWorld.vue</code> to test HMR

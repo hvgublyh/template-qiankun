@@ -29,16 +29,13 @@
 import NProgress from 'nprogress'
 import microApps from './micro-app'
 import store from '@/store'
-import { loadMicroApp } from 'qiankun'
-
 export default {
   name: 'App',
   data () {
     return {
       isLoading: true,
       microApps,
-      microApp: null,
-      current: '/vite'
+      current: '/sub-vue/'
     }
   },
   computed: {
@@ -64,63 +61,43 @@ export default {
   components: {},
   methods: {
     goto (item) {
-      // 卸载当前子应用
-      if (this.microApp) {
-        // 保存对旧应用的引用
-        const oldApp = this.microApp
-
-        // 先将microApp置为null，确保不会重复卸载
-        this.microApp = null
-        oldApp.unmount().then(() => {
-          console.log('卸载微应用', item.name, oldApp.getStatus && oldApp.getStatus())
-
-          history.replaceState(null, '', item.activeRule)
-          this.current = item.activeRule
-          this.loadAPP(item)
-        }).catch(err => {
-          console.error('卸载微应用失败', err)
-        })
-      } else {
-        history.pushState(null, '', item.activeRule)
-        this.loadAPP(item)
-        this.current = item.activeRule
-      }
-
-      // Make sure the path is absolute by adding a leading slash if not present
+      history.pushState(null, item.activeRule, item.activeRule)
+      // this.current = item.name
     },
-    loadAPP (item) {
-      // 首先确保容器是空的
-      const container = document.querySelector('#subapp-viewport')
-      if (container) {
-        container.innerHTML = ''
+    bindCurrent () {
+      const path = window.location.pathname
+      if (this.microApps.findIndex(item => item.activeRule === path) >= 0) {
+        this.current = path
       }
+    },
+    listenRouterChange () {
+      const _wr = function (type) {
+        const orig = history[type]
+        return function () {
+          const rv = orig.apply(this, arguments)
+          const e = new Event(type)
+          e.arguments = arguments
+          window.dispatchEvent(e)
+          return rv
+        }
+      }
+      history.pushState = _wr('pushState')
 
-      this.microApp = loadMicroApp({
-        name: item.name, // 微应用名称
-        entry: item.entry, // 微应用入口
-        container: '#subapp-viewport', // 挂载的 DOM 容器
-        props: item.props || {} // 传递给微应用的 props
-      })
+      window.addEventListener('pushState', this.bindCurrent)
+      window.addEventListener('popstate', this.bindCurrent)
 
-      // 监听微应用的加载状态
-      this.microApp.mountPromise.then(() => {
-        this.isLoading = false
-        console.log('加载微应用', item.name, this.microApp.getStatus && this.microApp.getStatus())
+      this.$once('hook:beforeDestroy', () => {
+        window.removeEventListener('pushState', this.bindCurrent)
+        window.removeEventListener('popstate', this.bindCurrent)
       })
     }
-
   },
   created () {
+    this.bindCurrent()
     NProgress.start()
   },
-  beforeDestroy () {
-    this.microApp && this.microApp.unmount()
-    // window.removeEventListener('popstate', this.handlePopState)
-  },
   mounted () {
-    this.loadAPP(this.microApps[1])
-
-    // window.addEventListener('popstate', this.handlePopState)
+    this.listenRouterChange()
   }
 }
 </script>
