@@ -14,6 +14,7 @@ import {
 } from 'vite-plugin-qiankun/dist/helper'
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import * as Sentry from '@sentry/vue';
 
 let instance: ReturnType<typeof createApp> | null = null
 let history: ReturnType<typeof createWebHistory> | null = null
@@ -24,6 +25,7 @@ function render(props: any = {}) {
   const { container, routerBase } = props || {}
   // 在渲染函数中创建路由器
   instance = createApp(App)
+  // 如果是 qiankun 环境，使用传入的 routerBase
   history = createWebHistory(__POWERED_BY_QIANKUN__ ? routerBase : '/')
   router = createRouter({
     history,
@@ -47,7 +49,24 @@ function render(props: any = {}) {
   instance.use(store)
   instance.use(ElementPlus);
   instance.mount(container ? container.querySelector('#app') : '#app')
-
+  // 初始化 Sentry
+  Sentry.init({
+    app: instance,
+    dsn: 'https://ca4564fc443d2f2a571a5b91711ce756@o4509479427833856.ingest.de.sentry.io/4509479439302736', // 替换为你的 DSN
+    // dsn: 'https://1ac592830c27cdf6179f3a52d3acee50@o4509479427833856.ingest.de.sentry.io/4509479431635024', // 替换为你的 DSN
+    sendDefaultPii: true,
+    integrations: [
+      Sentry.browserTracingIntegration({ router }),
+      Sentry.replayIntegration()
+    ],
+    // Tracing
+    tracesSampleRate: 1.0, // Capture 100% of the transactions
+    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+    tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+    replaysOnErrorSampleRate: 1.0
+  });
 
   return { instance, router, store }
 }

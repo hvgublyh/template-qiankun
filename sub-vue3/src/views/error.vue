@@ -25,7 +25,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onErrorCaptured } from 'vue';
+import * as Sentry from '@sentry/vue';
 
 defineProps({
   title: {
@@ -41,9 +42,27 @@ defineProps({
     default: 500
   }
 });
+
+Sentry.captureMessage('进入错误页面', 'error');
+// 监听子组件错误
+onErrorCaptured((err, instance, info) => {
+  console.error("捕获到错误:", err);
+  console.error("出错的组件:", instance);
+  console.error("错误信息:", info);
+  Sentry.captureException(err, {
+    extra: {
+      component: instance ? instance.$options.name || 'Unknown Component' : 'Unknown',
+      info
+    }
+  });
+
+  return false; // 阻止错误上传到全局
+});
+
 const dialogVisible = ref(false);
 const openDialog = () => {
-  dialogVisible.value = true;
+  // dialogVisible.value = true;
+  throw new Error("这是一个测试错误，用于演示错误捕获和弹框展示");
 };
 
 </script>
